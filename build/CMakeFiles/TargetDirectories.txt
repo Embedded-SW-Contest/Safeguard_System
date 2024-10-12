@@ -1,0 +1,4 @@
+/home/user/_safeguard/safeguard-system/build/CMakeFiles/SSD1306.dir
+/home/user/_safeguard/safeguard-system/build/CMakeFiles/safeguard.dir
+/home/user/_safeguard/safeguard-system/build/CMakeFiles/edit_cache.dir
+/home/user/_safeguard/safeguard-system/build/CMakeFiles/rebuild_cache.dir

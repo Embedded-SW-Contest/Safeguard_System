@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libSSD1306.a CMakeFiles/SSD1306.dir/lib/FileDescriptor.cxx.o CMakeFiles/SSD1306.dir/lib/OledHardware.cxx.o CMakeFiles/SSD1306.dir/lib/OledPixel.cxx.o CMakeFiles/SSD1306.dir/lib/OledFont8x8.cxx.o CMakeFiles/SSD1306.dir/lib/OledFont8x12.cxx.o CMakeFiles/SSD1306.dir/lib/OledFont8x16.cxx.o CMakeFiles/SSD1306.dir/lib/OledGraphics.cxx.o CMakeFiles/SSD1306.dir/lib/OledI2C.cxx.o
+/usr/bin/ranlib lib/libSSD1306.a
