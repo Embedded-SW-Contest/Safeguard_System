@@ -37,6 +37,9 @@ public:
 
     Coordinate longitude();
 
+    double getLatitude();
+    double getLongitude();
+
     // Logging Functions
     bool start_logging(const string &target_file, const string &mode = "append");
 
@@ -58,6 +61,8 @@ public:
     string latitude_string();
     string longitude_string();
     string speed_string(string unit = "kph");
+
+    double getSpeed();
       
 
 private:

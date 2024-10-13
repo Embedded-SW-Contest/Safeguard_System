@@ -54,6 +54,15 @@ using namespace std;
         return _longitude;
     }
 
+    double MicropyGPS:: getLatitude(){
+        double decimal_degrees = latitude().degrees + latitude().minutes/60;
+        return decimal_degrees;
+    }
+    double MicropyGPS:: getLongitude(){ 
+        double decimal_degrees = longitude().degrees + longitude().minutes/60;
+        return decimal_degrees;
+    }
+
     // Logging Functions
     bool MicropyGPS::start_logging(const string &target_file, const string &mode)
     {
@@ -353,5 +362,9 @@ using namespace std;
             speed_string = std::to_string(speed[2]) + " kph";
         }
         return speed_string;
+    }
+
+    double MicropyGPS::getSpeed(){
+        return speed[2] ;
     }
 

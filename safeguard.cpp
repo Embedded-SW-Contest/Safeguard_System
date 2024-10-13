@@ -1,6 +1,5 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT // HTTPS 기능 강제 활성화
 
-
 #include "OledFont8x16.h"
 #include "OledI2C.h"
 #include "gps.h"
@@ -9,20 +8,18 @@
 #include "httplib.h" // restAPI 통신
 #include "user.h"
 
-
 // #include <vector>
 // #include <algorithm>
 #include <iostream>
 #include <random>
 
-#include <wiringSerial.h>  // C 라이브러리 호환
+#include <wiringSerial.h> // C 라이브러리 호환
 
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <future>
 #include <nlohmann/json.hpp>
-
 
 using json = nlohmann::json;
 using namespace std;
@@ -32,7 +29,7 @@ SSD1306::OledI2C oled{OLEDConfig::OLEDPort, OLEDConfig::OLEDAddress};
 MicropyGPS gps;
 int fd_gps;
 Lidar lidar;
-//vector<User> user_v;
+// vector<User> user_v;
 
 httplib::SSLClient cli(HttpConfig::Address);
 
@@ -86,36 +83,36 @@ void drawDisplay()
     oled.displayUpdate();
 }
 
-void getData()
+void getUserData()
 {
+
     auto res = cli.Get("/api/users");
-    if (res)
+
+    if (res && (res->status == 200))
     {
-        // std::cout << "Status: " << res->status << "\n";
-        // std::cout << "Body: " << res->body << "\n";
+        cout << "Status: " << res->status << endl;
         json j = json::parse(res->body);
 
-       if (j.is_array()) {
-                for (const auto &item : j) 
-                {
-                    long user_id = item["user_id"].get<long>();
-                    std::string uni_num = item["uni_num"].get<std::string>();
-                    double user_dist = item["user_dist"].get<double>();
-                    //if(){} user_dist가 일정거리 이내로 들어오면..
-                    cout<<"user_dist : -------------------------------------------"<<user_dist<<"\n";
-                    
+        if (j.is_array())
+        {
+            for (const auto &item : j)
+            {
+                long user_id = item["user_id"].get<long>();
+                std::string uni_num = item["uni_num"].get<std::string>();
+                double user_dist = item["user_dist"].get<double>();
+                // if(){} user_dist가 일정거리 이내로 들어오면..
+                cout << "user_dist : -------------------------------------------" << user_dist << "\n";
 
-                       
-                }
-            } else {
-                // 단일 객체일 경우 처리
-                long user_id = j["user_id"].get<long>();
-                std::string uni_num = j["uni_num"].get<std::string>();
-                double user_dist = j["user_dist"].get<double>();
-                //if(){} user_dist가 일정거리 이내로 들어오면..
-                
             }
-        
+        }
+        else
+        {
+            // 단일 객체일 경우 처리
+            long user_id = j["user_id"].get<long>();
+            std::string uni_num = j["uni_num"].get<std::string>();
+            double user_dist = j["user_dist"].get<double>();
+            // if(){} user_dist가 일정거리 이내로 들어오면..
+        }
     }
     else
     {
@@ -124,6 +121,80 @@ void getData()
     }
 }
 
+void postCarData()
+{
+    // POST 요청에 보낼 JSON 데이터 생성
+    json requestBody = {
+        {"uni_num", "CAR2"},
+        {"car_lat", gps.getLatitude()},
+        {"car_lon", gps.getLongitude()}};
+
+    // JSON 데이터를 문자열로 변환
+    std::string requestData = requestBody.dump();
+
+    // 헤더 설정 (Content-Type을 JSON으로 지정)
+    httplib::Headers headers = {
+        {"Content-Type", "application/json"}};
+
+    // POST 요청 보내기
+    auto res = cli.Post("/api/cars", headers, requestData, "application/json");
+
+    // 응답 확인
+    if (res && (res->status == 200 || res->status == 201))
+    {
+        cout << "Status: " << res->status << endl;
+        cout << "Body: " << res->body << endl;
+    }
+    else
+    {
+        if (res)
+        {
+            cerr << "Request failed. Status: " << res->status << endl;
+        }
+        else
+        {
+            auto err = res.error();
+            cerr << "Request error: " << httplib::to_string(err) << endl;
+        }
+    }
+}
+//---
+future<void> futureGetData;
+future<void> futurePostData;
+bool isGetDataRunning = false;
+bool isPostDataRunning = false;
+void asyncHTTP()
+{
+    if (isGetDataRunning && futureGetData.valid() &&
+        futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
+    {
+        futureGetData.get(); // 비동기 작업의 결과 가져오기
+        isGetDataRunning = false;
+    }
+
+    // 이전 비동기 작업이 완료되었는지 확인 (POST)
+    if (isPostDataRunning && futurePostData.valid() &&
+        futurePostData.wait_for(chrono::seconds(0)) == future_status::ready)
+    {
+        futurePostData.get(); // 비동기 작업의 결과 가져오기
+        isPostDataRunning = false;
+    }
+
+    // 새로운 비동기 GET 작업 실행
+    if (!isGetDataRunning)
+    {
+        futureGetData = async(std::launch::async, getUserData);
+        isGetDataRunning = true;
+    }
+
+    // 새로운 비동기 POST 작업 실행
+    if (!isPostDataRunning)
+    {
+        futurePostData = async(std::launch::async, postCarData);
+        isPostDataRunning = true;
+    }
+}
+//---
 
 int main()
 {
@@ -133,34 +204,11 @@ int main()
         lidar = Lidar();
         connectDevices();
 
-        future<void> future;    // 비동기 작업을 위한 future 객체
-        bool isRunning = false;    // 비동기 작업 실행 상태 관리
-
         while (true)
         {
 
-            
-            
             getGPS();
-
-            // 이전 비동기 작업이 완료되었는지 확인
-            if (isRunning && future.valid() &&
-                future.wait_for(chrono::seconds(0)) == future_status::ready) {
-                future.get();  // 비동기 작업의 결과 가져오기
-                isRunning = false;  // 비동기 작업이 완료되었음을 표시
-            }
-
-            // 새로운 비동기 작업 실행
-           if (!isRunning) {
-                future = async(std::launch::async, getData);
-                isRunning = true;  // 비동기 작업이 시작됨을 표시
-            }
-
-
-            // cout << "latitude :" << gps.latitude_string() << "\n";
-            // cout << "ongitude :" << gps.longitude_string() << "\n";
-            // cout << "speed :" << gps.speed_string() << "\n";
-
+            asyncHTTP();
             drawDisplay();
 
             lidar.getTFminiData(0, lidar.lPort);
@@ -169,9 +217,8 @@ int main()
 
             if (lidar.getLeft() <= LidarConfig::LimitDistance && lidar.getRight() <= LidarConfig::LimitDistance)
             {
-                //현재속도로 제동거리 구하느 함수 만들어야함
-
-
+                // 현재속도로 제동거리 구하느 함수 만들어야함
+                cout << "gps speed: " << gps.getSpeed() << "\n-----------";
             }
 
             usleep(100000);
