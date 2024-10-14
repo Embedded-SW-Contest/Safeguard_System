@@ -12,12 +12,11 @@
 // #include <algorithm>
 #include <iostream>
 #include <random>
-
-#include <wiringSerial.h> // C 라이브러리 호환
-
 #include <stdio.h>
 #include <string.h>
+#include <cmath>
 #include <errno.h>
+#include <wiringSerial.h> // C 라이브러리 호환
 #include <future>
 #include <nlohmann/json.hpp>
 
@@ -30,7 +29,8 @@ MicropyGPS gps;
 int fd_gps;
 Lidar lidar;
 // vector<User> user_v;
-
+double brakingDistance;
+vector<User> user_v;
 httplib::SSLClient cli(HttpConfig::Address);
 
 int connectDevices()
@@ -92,6 +92,7 @@ void getUserData()
     {
         cout << "Status: " << res->status << endl;
         json j = json::parse(res->body);
+        user_v.clear();
 
         if (j.is_array())
         {
@@ -100,18 +101,20 @@ void getUserData()
                 long user_id = item["user_id"].get<long>();
                 std::string uni_num = item["uni_num"].get<std::string>();
                 double user_dist = item["user_dist"].get<double>();
-                // if(){} user_dist가 일정거리 이내로 들어오면..
-                cout << "user_dist : -------------------------------------------" << user_dist << "\n";
-
+                bool user_flag = item["user_flag"].get<int>();
+                cout<<"user_flag : "<<user_flag<<"flagflagflagflag";
+                user_v.emplace_back(user_id, uni_num, user_dist,user_flag);
+                
             }
         }
         else
         {
-            // 단일 객체일 경우 처리
             long user_id = j["user_id"].get<long>();
             std::string uni_num = j["uni_num"].get<std::string>();
             double user_dist = j["user_dist"].get<double>();
-            // if(){} user_dist가 일정거리 이내로 들어오면..
+            bool user_flag = j["user_flag"].get<int>();
+            
+             user_v.emplace_back(user_id, uni_num, user_dist,user_flag);
         }
     }
     else
@@ -127,7 +130,9 @@ void postCarData()
     json requestBody = {
         {"uni_num", "CAR2"},
         {"car_lat", gps.getLatitude()},
-        {"car_lon", gps.getLongitude()}};
+        {"car_lon", gps.getLongitude()},
+        {"braking_distance", brakingDistance}
+        };
 
     // JSON 데이터를 문자열로 변환
     std::string requestData = requestBody.dump();
@@ -143,7 +148,7 @@ void postCarData()
     if (res && (res->status == 200 || res->status == 201))
     {
         cout << "Status: " << res->status << endl;
-        cout << "Body: " << res->body << endl;
+        //cout << "Body: " << res->body << endl;
     }
     else
     {
@@ -196,6 +201,12 @@ void asyncHTTP()
 }
 //---
 
+void calculateBrakingDistance(){
+    double speedKPH = gps.getSpeed();
+    double speedMPS = speedKPH * 1000 / 3600;
+    brakingDistance = speedMPS * driver::ReactionTime + pow(speedMPS,2)/(2*driver::accelMPSS);  
+}
+
 int main()
 {
     try
@@ -210,15 +221,25 @@ int main()
             getGPS();
             asyncHTTP();
             drawDisplay();
-
+            
             lidar.getTFminiData(0, lidar.lPort);
             lidar.getTFminiData(1, lidar.rPort);
             lidar.showAll();
 
-            if (lidar.getLeft() <= LidarConfig::LimitDistance && lidar.getRight() <= LidarConfig::LimitDistance)
+            if (lidar.getLeft() <= LidarConfig::LimitDistance || lidar.getRight() <= LidarConfig::LimitDistance)
             {
-                // 현재속도로 제동거리 구하느 함수 만들어야함
-                cout << "gps speed: " << gps.getSpeed() << "\n-----------";
+                calculateBrakingDistance();
+                for(User user : user_v){        
+                    if(user.getUserDist() < brakingDistance){ // && user.get
+                        //경고 울림!
+                        cout<<"*************경고!!*************";
+                        //해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..
+                        
+                        
+                    }
+                    continue;
+                }
+               
             }
 
             usleep(100000);

@@ -17,7 +17,7 @@ void Lidar::getTFminiData(int num, sp_port *port) {
 
  
         int count = sp_input_waiting(port);  // sp_input_waiting 대신 sp_input_waiting 사용
- 
+    
         if (count > 8) {
             //cout << "--------------" << endl;
             unsigned char recv[9];
@@ -30,6 +30,7 @@ void Lidar::getTFminiData(int num, sp_port *port) {
                 int low = recv[2]; // 추가적인 변환 없이 바로 값을 할당 O
                 int high = recv[3];
                 int distance = low + high * 256;
+                cout<<"distance : "<<distance <<"-------\n";
                 
                 //cout << distance << endl;
                 if(num == 0){

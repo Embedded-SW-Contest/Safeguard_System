@@ -7,7 +7,7 @@
 namespace LidarConfig {
     // Lidar 설정 값
     constexpr const char* LeftLidarPort = "/dev/ttyUSB0";
-    constexpr const char* RightLidarPort = "";
+    constexpr const char* RightLidarPort = ""; //"/dev/ttyAMA0";
     static constexpr int LimitDistance = 1000;
 
   
@@ -15,7 +15,7 @@ namespace LidarConfig {
 
 namespace GPSConfig {
     // GPS 설정 값
-    constexpr const char* GpsPort = "/dev/ttyAMA0";
+    constexpr const char* GpsPort = "/dev/ttyAMA2";
     static constexpr int GpsBaudRate = 9600;
 
 }
@@ -28,5 +28,11 @@ namespace OLEDConfig{
 namespace HttpConfig{
     constexpr const char* Address = "00gym.shop";
 }
+
+namespace driver{
+    constexpr const double ReactionTime = 1.0;
+    constexpr const double accelMPSS = 5;
+}
+
 
 #endif // CONFIG_H

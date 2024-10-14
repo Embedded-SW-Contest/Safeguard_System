@@ -1,48 +1,54 @@
-#include <cstring>  // strncpy 사용을 위해 필요
+#include <cstring> // strncpy 사용을 위해 필요
 #include <iostream>
 
-class User{
-    private :
-        long user_id;
-        char uni_num[20];
-        long user_x;
-        long user_y;
-        long user_dist;
-        long user_lat;
-        long user_lon;
+using namespace std;
 
+class User
+{
+private:
+    long user_id;
+    string uni_num;
+    double user_x;
+    double user_y;
+    double user_dist;
+    double user_lat;
+    double user_lon;
+    bool user_flag;
 
-    public :
+public:
+    User(long id, const std::string &num, double dist, bool flag) : user_id(id), uni_num(num), user_dist(dist), user_flag(flag) {}
 
     long getUserId() const { return user_id; }
     void setUserId(long id) { user_id = id; }
 
     // uni_num
-    const char* getUniNum() const { return uni_num; }
-    void setUniNum(const char* num) { 
-        std::strncpy(uni_num, num, sizeof(uni_num) - 1); 
-        uni_num[sizeof(uni_num) - 1] = '\0';  // 안전한 문자열 종료
+    string getUniNum() const { return uni_num; }
+    void setUniNum(const string &num)
+    {
+        uni_num = num;
     }
 
-        // user_x
-    long getUserX() const { return user_x; }
-    void setUserX(long x) { user_x = x; }
+    // user_x
+    double getUserX() const { return user_x; }
+    void setUserX(double x) { user_x = x; }
 
     // user_y
-    long getUserY() const { return user_y; }
-    void setUserY(long y) { user_y = y; }
+    double getUserY() const { return user_y; }
+    void setUserY(double y) { user_y = y; }
 
     // user_dist
-    long getUserDist() const { return user_dist; }
-    void setUserDist(long dist) { user_dist = dist; }
+    double getUserDist() const { return user_dist; }
+    void setUserDist(double dist) { user_dist = dist; }
 
     // user_lat
-    long getUserLat() const { return user_lat; }
-    void setUserLat(long lat) { user_lat = lat; }
+    double getUserLat() const { return user_lat; }
+    void setUserLat(double lat) { user_lat = lat; }
 
     // user_lon
-    long getUserLon() const { return user_lon; }
-    void setUserLon(long lon) { user_lon = lon; }
+    double getUserLon() const { return user_lon; }
+    void setUserLon(double lon) { user_lon = lon; }
 
-
+    double getUserFlag() const { return user_flag; }
+    void setUserFlag(bool flag) { user_flag = flag; }
+    
 };
