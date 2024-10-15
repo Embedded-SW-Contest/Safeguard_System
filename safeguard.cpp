@@ -43,12 +43,12 @@ int connectDevices()
         return -1;
     }
 
-    // 오른쪽 라이다의 시리얼 포트 열기 (GPIO : ttyAMA[] , USB : ttyUSB[])
-    // if (lidar.openSerialPort("/dev/ttyAMA0", &lidar.rPort) == -1)
-    // {
-    //     cerr << "Failed to open rPort." << endl;
-    //     return -1;
-    // }
+    //오른쪽 라이다의 시리얼 포트 열기 (GPIO : ttyAMA[] , USB : ttyUSB[])
+    if (lidar.openSerialPort(LidarConfig::RightLidarPort, &lidar.rPort) == -1)
+    {
+        cerr << "Failed to open rPort." << endl;
+        return -1;
+    }
 
     if ((fd_gps = serialOpen(GPSConfig::GpsPort, GPSConfig::GpsBaudRate)) < 0)
     {
@@ -82,6 +82,7 @@ void drawDisplay()
                    oled);
     oled.displayUpdate();
 }
+
 
 void getUserData()
 {
@@ -120,7 +121,7 @@ void getUserData()
     else
     {
         auto err = res.error();
-        std::cerr << "Request failed with error: " << httplib::to_string(err) << "\n";
+        std::cerr << "Request failed with error(getUserData): " << httplib::to_string(err) << "\n";
     }
 }
 
@@ -154,12 +155,12 @@ void postCarData()
     {
         if (res)
         {
-            cerr << "Request failed. Status: " << res->status << endl;
+            cerr << "Request failed. Status:(PostCarData) " << res->status << endl;
         }
         else
         {
             auto err = res.error();
-            cerr << "Request error: " << httplib::to_string(err) << endl;
+            cerr << "Request error:(PostCarData) " << httplib::to_string(err) << endl;
         }
     }
 }
@@ -230,7 +231,7 @@ int main()
             {
                 calculateBrakingDistance();
                 for(User user : user_v){        
-                    if(user.getUserDist() < brakingDistance){ // && user.get
+                    if(user.getUserDist() < brakingDistance){ // && user.getFlag()
                         //경고 울림!
                         cout<<"*************경고!!*************";
                         //해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..

@@ -7,7 +7,7 @@
 namespace LidarConfig {
     // Lidar 설정 값
     constexpr const char* LeftLidarPort = "/dev/ttyUSB0";
-    constexpr const char* RightLidarPort = ""; //"/dev/ttyAMA0";
+    constexpr const char* RightLidarPort = "/dev/ttyAMA1";
     static constexpr int LimitDistance = 1000;
 
   
@@ -15,7 +15,7 @@ namespace LidarConfig {
 
 namespace GPSConfig {
     // GPS 설정 값
-    constexpr const char* GpsPort = "/dev/ttyAMA2";
+    constexpr const char* GpsPort = "/dev/ttyAMA0";
     static constexpr int GpsBaudRate = 9600;
 
 }

@@ -17,20 +17,20 @@ void Lidar::getTFminiData(int num, sp_port *port) {
 
  
         int count = sp_input_waiting(port);  // sp_input_waiting 대신 sp_input_waiting 사용
-    
+       
         if (count > 8) {
-            //cout << "--------------" << endl;
+           
             unsigned char recv[9];
             sp_blocking_read(port, recv, 9, 1000);  // 시리얼 데이터 읽기
             sp_flush(port, SP_BUF_INPUT); // 버퍼 초기화
             
             
             if (recv[0] == 0x59 && recv[1] == 0x59) { // 0x59는 'Y'에 해당
-                //cout << "distance : ";
+                
                 int low = recv[2]; // 추가적인 변환 없이 바로 값을 할당 O
                 int high = recv[3];
                 int distance = low + high * 256;
-                cout<<"distance : "<<distance <<"-------\n";
+                
                 
                 //cout << distance << endl;
                 if(num == 0){
@@ -39,6 +39,7 @@ void Lidar::getTFminiData(int num, sp_port *port) {
                     cout<<"right";
                     setRight(distance);
                 }
+               
             }
         }
 
