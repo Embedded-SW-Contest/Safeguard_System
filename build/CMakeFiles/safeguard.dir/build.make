@@ -125,6 +125,7 @@ bin/safeguard: CMakeFiles/safeguard.dir/gps.cpp.o
 bin/safeguard: CMakeFiles/safeguard.dir/lidar.cpp.o
 bin/safeguard: CMakeFiles/safeguard.dir/build.make
 bin/safeguard: lib/libSSD1306.a
+bin/safeguard: /usr/lib/aarch64-linux-gnu/libcurl.so
 bin/safeguard: /usr/lib/aarch64-linux-gnu/libssl.so
 bin/safeguard: /usr/lib/aarch64-linux-gnu/libcrypto.so
 bin/safeguard: /usr/local/lib/libwiringPi.so

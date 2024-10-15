@@ -38,8 +38,8 @@ target_link_libraries(safeguard SSD1306)
 
 
 #  라이브러리 찾기 및 링크
-
-
+find_package(CURL REQUIRED)
+target_link_libraries(safeguard CURL::libcurl)
 target_link_libraries(safeguard OpenSSL::SSL OpenSSL::Crypto)
 
 find_library(WIRINGPI_LIB wiringPi REQUIRED)

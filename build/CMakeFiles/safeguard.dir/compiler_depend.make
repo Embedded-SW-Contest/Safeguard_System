@@ -963,14 +963,32 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
   /usr/include/nlohmann/detail/conversions/to_chars.hpp \
   /usr/include/nlohmann/ordered_map.hpp \
   /usr/include/nlohmann/detail/macro_unscope.hpp \
-  /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp
+  /usr/include/nlohmann/thirdparty/hedley/hedley_undef.hpp \
+  /usr/include/aarch64-linux-gnu/curl/curl.h \
+  /usr/include/aarch64-linux-gnu/curl/curlver.h \
+  /usr/include/aarch64-linux-gnu/curl/system.h \
+  /usr/include/aarch64-linux-gnu/curl/easy.h \
+  /usr/include/aarch64-linux-gnu/curl/multi.h \
+  /usr/include/aarch64-linux-gnu/curl/curl.h \
+  /usr/include/aarch64-linux-gnu/curl/urlapi.h \
+  /usr/include/aarch64-linux-gnu/curl/options.h \
+  /usr/include/aarch64-linux-gnu/curl/header.h \
+  /usr/include/aarch64-linux-gnu/curl/websockets.h
 
+
+/usr/include/aarch64-linux-gnu/curl/multi.h:
+
+/usr/include/aarch64-linux-gnu/curl/curlver.h:
+
+/usr/include/aarch64-linux-gnu/curl/curl.h:
 
 /usr/include/nlohmann/ordered_map.hpp:
 
 /usr/include/nlohmann/detail/conversions/to_chars.hpp:
 
 /usr/include/nlohmann/detail/output/serializer.hpp:
+
+/usr/include/aarch64-linux-gnu/curl/header.h:
 
 /usr/include/nlohmann/detail/output/output_adapters.hpp:
 
@@ -997,6 +1015,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/openssl/bnerr.h:
 
 /usr/include/c++/12/bits/valarray_array.h:
+
+/usr/include/aarch64-linux-gnu/curl/easy.h:
 
 /usr/include/aarch64-linux-gnu/bits/socket_type.h:
 
@@ -1113,6 +1133,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/aarch64-linux-gnu/bits/stdio.h:
 
 /usr/include/aarch64-linux-gnu/c++/12/bits/basic_file.h:
+
+/usr/include/aarch64-linux-gnu/curl/options.h:
 
 /usr/include/aarch64-linux-gnu/bits/wctype-wchar.h:
 
@@ -1293,6 +1315,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/stdint.h:
 
 /usr/include/openssl/evp.h:
+
+/usr/include/aarch64-linux-gnu/curl/urlapi.h:
 
 /usr/lib/gcc/aarch64-linux-gnu/12/include/stdint.h:
 
@@ -1585,6 +1609,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/c++/12/bits/stl_iterator.h:
 
 /usr/include/openssl/conftypes.h:
+
+/usr/include/aarch64-linux-gnu/curl/websockets.h:
 
 /usr/include/c++/12/bits/std_function.h:
 
@@ -1953,6 +1979,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/openssl/opensslv.h:
 
 /usr/include/openssl/e_os2.h:
+
+/usr/include/aarch64-linux-gnu/curl/system.h:
 
 /usr/include/linux/stat.h:
 

@@ -19,6 +19,7 @@
 #include <wiringSerial.h> // C 라이브러리 호환
 #include <future>
 #include <nlohmann/json.hpp>
+#include <curl/curl.h>
 
 using json = nlohmann::json;
 using namespace std;
@@ -33,6 +34,9 @@ double brakingDistance;
 vector<User> user_v;
 httplib::SSLClient cli(HttpConfig::Address);
 
+std::thread sse_thread;
+std::atomic<bool> sse_running{true};
+
 int connectDevices()
 {
 
@@ -43,7 +47,7 @@ int connectDevices()
         return -1;
     }
 
-    //오른쪽 라이다의 시리얼 포트 열기 (GPIO : ttyAMA[] , USB : ttyUSB[])
+    // 오른쪽 라이다의 시리얼 포트 열기 (GPIO : ttyAMA[] , USB : ttyUSB[])
     if (lidar.openSerialPort(LidarConfig::RightLidarPort, &lidar.rPort) == -1)
     {
         cerr << "Failed to open rPort." << endl;
@@ -82,10 +86,8 @@ void drawDisplay()
                    oled);
     oled.displayUpdate();
 }
-
-
-void getUserData()
-{
+/*SSE로 대체함
+void getUserData() {
 
     auto res = cli.Get("/api/users");
 
@@ -103,9 +105,8 @@ void getUserData()
                 std::string uni_num = item["uni_num"].get<std::string>();
                 double user_dist = item["user_dist"].get<double>();
                 bool user_flag = item["user_flag"].get<int>();
-                cout<<"user_flag : "<<user_flag<<"flagflagflagflag";
-                user_v.emplace_back(user_id, uni_num, user_dist,user_flag);
-                
+                cout << "user_flag : " << user_flag << "flagflagflagflag";
+                user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
             }
         }
         else
@@ -114,8 +115,8 @@ void getUserData()
             std::string uni_num = j["uni_num"].get<std::string>();
             double user_dist = j["user_dist"].get<double>();
             bool user_flag = j["user_flag"].get<int>();
-            
-             user_v.emplace_back(user_id, uni_num, user_dist,user_flag);
+
+            user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
         }
     }
     else
@@ -124,6 +125,7 @@ void getUserData()
         std::cerr << "Request failed with error(getUserData): " << httplib::to_string(err) << "\n";
     }
 }
+*/
 
 void postCarData()
 {
@@ -132,8 +134,7 @@ void postCarData()
         {"uni_num", "CAR2"},
         {"car_lat", gps.getLatitude()},
         {"car_lon", gps.getLongitude()},
-        {"braking_distance", brakingDistance}
-        };
+        {"braking_distance", brakingDistance}};
 
     // JSON 데이터를 문자열로 변환
     std::string requestData = requestBody.dump();
@@ -149,7 +150,7 @@ void postCarData()
     if (res && (res->status == 200 || res->status == 201))
     {
         cout << "Status: " << res->status << endl;
-        //cout << "Body: " << res->body << endl;
+        // cout << "Body: " << res->body << endl;
     }
     else
     {
@@ -164,19 +165,20 @@ void postCarData()
         }
     }
 }
+
 //---
-future<void> futureGetData;
+//future<void> futureGetData;
 future<void> futurePostData;
-bool isGetDataRunning = false;
+//bool isGetDataRunning = false;
 bool isPostDataRunning = false;
 void asyncHTTP()
 {
-    if (isGetDataRunning && futureGetData.valid() &&
-        futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
-    {
-        futureGetData.get(); // 비동기 작업의 결과 가져오기
-        isGetDataRunning = false;
-    }
+    // if (isGetDataRunning && futureGetData.valid() &&
+    //     futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
+    // {
+    //     futureGetData.get(); // 비동기 작업의 결과 가져오기
+    //     isGetDataRunning = false;
+    // }
 
     // 이전 비동기 작업이 완료되었는지 확인 (POST)
     if (isPostDataRunning && futurePostData.valid() &&
@@ -186,12 +188,12 @@ void asyncHTTP()
         isPostDataRunning = false;
     }
 
-    // 새로운 비동기 GET 작업 실행
-    if (!isGetDataRunning)
-    {
-        futureGetData = async(std::launch::async, getUserData);
-        isGetDataRunning = true;
-    }
+    // // 새로운 비동기 GET 작업 실행
+    // if (!isGetDataRunning)
+    // {
+    //     futureGetData = async(std::launch::async, getUserData);
+    //     isGetDataRunning = true;
+    // }
 
     // 새로운 비동기 POST 작업 실행
     if (!isPostDataRunning)
@@ -202,10 +204,109 @@ void asyncHTTP()
 }
 //---
 
-void calculateBrakingDistance(){
+void calculateBrakingDistance()
+{
     double speedKPH = gps.getSpeed();
     double speedMPS = speedKPH * 1000 / 3600;
-    brakingDistance = speedMPS * driver::ReactionTime + pow(speedMPS,2)/(2*driver::accelMPSS);  
+    brakingDistance = speedMPS * driver::ReactionTime + pow(speedMPS, 2) / (2 * driver::accelMPSS);
+}
+
+size_t onReceiveData(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    std::string data(ptr, size * nmemb); // 받은 데이터 추출
+
+    // "data: "로 시작하는 SSE 메시지를 추출
+    size_t pos = data.find("data: ");
+
+
+    if (pos != std::string::npos)
+    {
+        std::string json_str = data.substr(pos + 6); // "data: " 이후의 JSON 추출
+        try
+        {
+            auto j = nlohmann::json::parse(json_str); // JSON 파싱
+            user_v.clear();                           // 기존 데이터 초기화
+
+            if (j.is_array())
+            {
+                for (const auto &item : j)
+                {
+                    long user_id = item["user_id"].get<long>();
+                    std::string uni_num = item["uni_num"].get<std::string>();
+                    double user_dist = item["user_dist"].get<double>();
+                    bool user_flag = item["user_flag"].get<int>();
+
+                    std::cout << "user_flag: " << user_flag << std::endl;
+                    user_v.emplace_back(User{user_id, uni_num, user_dist, user_flag});
+                }
+            }
+            else
+            {
+                long user_id = j["user_id"].get<long>();
+                std::string uni_num = j["uni_num"].get<std::string>();
+                double user_dist = j["user_dist"].get<double>();
+                bool user_flag = j["user_flag"].get<int>();
+
+                std::cout << "user_flag: " << user_flag << std::endl;
+                user_v.emplace_back(User{user_id, uni_num, user_dist, user_flag});
+            }
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "JSON parse error: " << e.what() << std::endl;
+        }
+    }
+
+    return size * nmemb; // curl에 데이터 처리가 완료되었음을 알림
+}
+// SSE 연결 처리 함수
+void connectToSSE(const std::string& url) {
+    while (sse_running) {
+        try {
+            CURL* curl = curl_easy_init();
+            if (!curl) {
+                throw std::runtime_error("Failed to initialize CURL");
+            }
+
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());  // URL 설정
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, onReceiveData);  // 콜백 설정
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0L);  // 무한 대기
+            curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // 리디렉션 허용
+
+            std::cout << "Connecting to SSE stream..." << std::endl;
+
+            CURLcode res = curl_easy_perform(curl);
+            if (res != CURLE_OK) {
+                std::cerr << "CURL error: " << curl_easy_strerror(res) << std::endl;
+            }
+
+            curl_easy_cleanup(curl);  // CURL 정리
+
+            // 서버가 비정상적으로 끊겼을 때 재연결 시도
+            std::this_thread::sleep_for(std::chrono::seconds(5));  // 5초 후 재시도
+        } catch (const std::exception& e) {
+            std::cerr << "Exception in SSE connection: " << e.what() << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(5));  // 5초 후 재시도
+        }
+    }
+}
+
+void startSSE() {
+    // SSE 스레드를 시작하는 함수
+    try {
+        std::cout << "Starting SSE thread..." << std::endl;
+        connectToSSE(HttpConfig::full_Address_GetUser);
+    } catch (const std::exception& e) {
+        std::cerr << "SSE thread exception: " << e.what() << std::endl;
+    }
+}
+
+void restartSSEIfNeeded() {
+    // SSE 스레드가 종료되면 재시작하는 함수
+    if (!sse_thread.joinable()) {  // 스레드가 종료된 경우
+        sse_running = true;
+        sse_thread = std::thread(startSSE);  // 새로운 스레드 시작
+    }
 }
 
 int main()
@@ -215,14 +316,15 @@ int main()
 
         lidar = Lidar();
         connectDevices();
-
+        sse_thread = std::thread(startSSE);
         while (true)
         {
-
+           
             getGPS();
             asyncHTTP();
+
             drawDisplay();
-            
+
             lidar.getTFminiData(0, lidar.lPort);
             lidar.getTFminiData(1, lidar.rPort);
             lidar.showAll();
@@ -230,18 +332,19 @@ int main()
             if (lidar.getLeft() <= LidarConfig::LimitDistance || lidar.getRight() <= LidarConfig::LimitDistance)
             {
                 calculateBrakingDistance();
-                for(User user : user_v){        
-                    if(user.getUserDist() < brakingDistance){ // && user.getFlag()
-                        //경고 울림!
-                        cout<<"*************경고!!*************";
-                        //해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..
-                        
-                        
+                for (User user : user_v)
+                {
+                    if (user.getUserDist() < brakingDistance)
+                    { // && user.getFlag()
+                        // 경고 울림!
+                        cout << "*************경고!!*************";
+                        // 해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..
                     }
                     continue;
                 }
-               
             }
+
+            restartSSEIfNeeded();
 
             usleep(100000);
         }

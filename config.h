@@ -27,6 +27,7 @@ namespace OLEDConfig{
 
 namespace HttpConfig{
     constexpr const char* Address = "00gym.shop";
+    constexpr const char* full_Address_GetUser ="https://00gym.shop/api/users";
 }
 
 namespace driver{
