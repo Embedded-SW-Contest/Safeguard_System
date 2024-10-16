@@ -7,6 +7,7 @@
 #include "config.h"
 #include "httplib.h" // restAPI 통신
 #include "user.h"
+#include "webSocketClient.h"
 
 // #include <vector>
 // #include <algorithm>
@@ -20,6 +21,10 @@
 #include <future>
 #include <nlohmann/json.hpp>
 #include <curl/curl.h>
+#include <websocketpp/config/asio_no_tls_client.hpp>
+#include <websocketpp/client.hpp>
+
+
 
 using json = nlohmann::json;
 using namespace std;
@@ -86,123 +91,8 @@ void drawDisplay()
                    oled);
     oled.displayUpdate();
 }
-/*SSE로 대체함
-void getUserData() {
 
-    auto res = cli.Get("/api/users");
 
-    if (res && (res->status == 200))
-    {
-        cout << "Status: " << res->status << endl;
-        json j = json::parse(res->body);
-        user_v.clear();
-
-        if (j.is_array())
-        {
-            for (const auto &item : j)
-            {
-                long user_id = item["user_id"].get<long>();
-                std::string uni_num = item["uni_num"].get<std::string>();
-                double user_dist = item["user_dist"].get<double>();
-                bool user_flag = item["user_flag"].get<int>();
-                cout << "user_flag : " << user_flag << "flagflagflagflag";
-                user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
-            }
-        }
-        else
-        {
-            long user_id = j["user_id"].get<long>();
-            std::string uni_num = j["uni_num"].get<std::string>();
-            double user_dist = j["user_dist"].get<double>();
-            bool user_flag = j["user_flag"].get<int>();
-
-            user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
-        }
-    }
-    else
-    {
-        auto err = res.error();
-        std::cerr << "Request failed with error(getUserData): " << httplib::to_string(err) << "\n";
-    }
-}
-*/
-
-void postCarData()
-{
-    // POST 요청에 보낼 JSON 데이터 생성
-    json requestBody = {
-        {"uni_num", "CAR2"},
-        {"car_lat", gps.getLatitude()},
-        {"car_lon", gps.getLongitude()},
-        {"braking_distance", brakingDistance}};
-
-    // JSON 데이터를 문자열로 변환
-    std::string requestData = requestBody.dump();
-
-    // 헤더 설정 (Content-Type을 JSON으로 지정)
-    httplib::Headers headers = {
-        {"Content-Type", "application/json"}};
-
-    // POST 요청 보내기
-    auto res = cli.Post("/api/cars", headers, requestData, "application/json");
-
-    // 응답 확인
-    if (res && (res->status == 200 || res->status == 201))
-    {
-        cout << "Status: " << res->status << endl;
-        // cout << "Body: " << res->body << endl;
-    }
-    else
-    {
-        if (res)
-        {
-            cerr << "Request failed. Status:(PostCarData) " << res->status << endl;
-        }
-        else
-        {
-            auto err = res.error();
-            cerr << "Request error:(PostCarData) " << httplib::to_string(err) << endl;
-        }
-    }
-}
-
-//---
-//future<void> futureGetData;
-future<void> futurePostData;
-//bool isGetDataRunning = false;
-bool isPostDataRunning = false;
-void asyncHTTP()
-{
-    // if (isGetDataRunning && futureGetData.valid() &&
-    //     futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
-    // {
-    //     futureGetData.get(); // 비동기 작업의 결과 가져오기
-    //     isGetDataRunning = false;
-    // }
-
-    // 이전 비동기 작업이 완료되었는지 확인 (POST)
-    if (isPostDataRunning && futurePostData.valid() &&
-        futurePostData.wait_for(chrono::seconds(0)) == future_status::ready)
-    {
-        futurePostData.get(); // 비동기 작업의 결과 가져오기
-        isPostDataRunning = false;
-    }
-
-    // // 새로운 비동기 GET 작업 실행
-    // if (!isGetDataRunning)
-    // {
-    //     futureGetData = async(std::launch::async, getUserData);
-    //     isGetDataRunning = true;
-    // }
-
-    // 새로운 비동기 POST 작업 실행
-    if (!isPostDataRunning)
-    {
-        futurePostData = async(std::launch::async, postCarData);
-        isPostDataRunning = true;
-    }
-}
-//---
 
 void calculateBrakingDistance()
 {
@@ -309,6 +199,8 @@ void restartSSEIfNeeded() {
     }
 }
 
+
+
 int main()
 {
     try
@@ -317,11 +209,13 @@ int main()
         lidar = Lidar();
         connectDevices();
         sse_thread = std::thread(startSSE);
+
+        WebSocketClient wsClient(driver::websocket); 
         while (true)
         {
-           
+            
             getGPS();
-            asyncHTTP();
+            wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance);//소켓으로 차량데이터 넘김// asyncHTTP();
 
             drawDisplay();
 
@@ -334,8 +228,8 @@ int main()
                 calculateBrakingDistance();
                 for (User user : user_v)
                 {
-                    if (user.getUserDist() < brakingDistance)
-                    { // && user.getFlag()
+                    if (user.getUserDist() < brakingDistance && user.getUserFlag())
+                    {
                         // 경고 울림!
                         cout << "*************경고!!*************";
                         // 해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..
@@ -345,7 +239,6 @@ int main()
             }
 
             restartSSEIfNeeded();
-
             usleep(100000);
         }
 
@@ -370,3 +263,128 @@ int main()
 
     return 0;
 }
+
+//webSocket으로 대체---
+// void postCarData()
+// {
+//     // POST 요청에 보낼 JSON 데이터 생성
+//     json requestBody = {
+//         {"uni_num", "CAR2"},
+//         {"car_lat", gps.getLatitude()},
+//         {"car_lon", gps.getLongitude()},
+//         {"braking_distance", brakingDistance}};
+
+//     // JSON 데이터를 문자열로 변환
+//     std::string requestData = requestBody.dump();
+
+//     // 헤더 설정 (Content-Type을 JSON으로 지정)
+//     httplib::Headers headers = {
+//         {"Content-Type", "application/json"}};
+
+//     // POST 요청 보내기
+//     auto res = cli.Post("/api/cars", headers, requestData, "application/json");
+
+//     // 응답 확인
+//     if (res && (res->status == 200 || res->status == 201))
+//     {
+//         cout << "Status: " << res->status << endl;
+//         // cout << "Body: " << res->body << endl;
+//     }
+//     else
+//     {
+//         if (res)
+//         {
+//             cerr << "Request failed. Status:(PostCarData) " << res->status << endl;
+//         }
+//         else
+//         {
+//             auto err = res.error();
+//             cerr << "Request error:(PostCarData) " << httplib::to_string(err) << endl;
+//         }
+//     }
+// }
+
+// 
+
+
+
+
+//---WebSocket으로 대체
+// //future<void> futureGetData;
+// future<void> futurePostData;
+// //bool isGetDataRunning = false;
+// bool isPostDataRunning = false;
+// void asyncHTTP()
+// {
+//     // if (isGetDataRunning && futureGetData.valid() &&
+//     //     futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
+//     // {
+//     //     futureGetData.get(); // 비동기 작업의 결과 가져오기
+//     //     isGetDataRunning = false;
+//     // }
+
+//     // 이전 비동기 작업이 완료되었는지 확인 (POST)
+//     if (isPostDataRunning && futurePostData.valid() &&
+//         futurePostData.wait_for(chrono::seconds(0)) == future_status::ready)
+//     {
+//         futurePostData.get(); // 비동기 작업의 결과 가져오기
+//         isPostDataRunning = false;
+//     }
+
+//     // // 새로운 비동기 GET 작업 실행
+//     // if (!isGetDataRunning)
+//     // {
+//     //     futureGetData = async(std::launch::async, getUserData);
+//     //     isGetDataRunning = true;
+//     // }
+
+//     // 새로운 비동기 POST 작업 실행
+//     if (!isPostDataRunning)
+//     {
+//         futurePostData = async(std::launch::async, postCarData);
+//         isPostDataRunning = true;
+//     }
+// }
+// //---
+
+
+/*SSE로 대체함
+void getUserData() {
+
+    auto res = cli.Get("/api/users");
+
+    if (res && (res->status == 200))
+    {
+        cout << "Status: " << res->status << endl;
+        json j = json::parse(res->body);
+        user_v.clear();
+
+        if (j.is_array())
+        {
+            for (const auto &item : j)
+            {
+                long user_id = item["user_id"].get<long>();
+                std::string uni_num = item["uni_num"].get<std::string>();
+                double user_dist = item["user_dist"].get<double>();
+                bool user_flag = item["user_flag"].get<int>();
+                cout << "user_flag : " << user_flag << "flagflagflagflag";
+                user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
+            }
+        }
+        else
+        {
+            long user_id = j["user_id"].get<long>();
+            std::string uni_num = j["uni_num"].get<std::string>();
+            double user_dist = j["user_dist"].get<double>();
+            bool user_flag = j["user_flag"].get<int>();
+
+            user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
+        }
+    }
+    else
+    {
+        auto err = res.error();
+        std::cerr << "Request failed with error(getUserData): " << httplib::to_string(err) << "\n";
+    }
+}
+*/

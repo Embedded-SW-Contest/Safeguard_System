@@ -31,8 +31,10 @@ namespace HttpConfig{
 }
 
 namespace driver{
+    constexpr const char* car_name = "Porsche Taycan";
     constexpr const double ReactionTime = 1.0;
     constexpr const double accelMPSS = 5;
+    constexpr const char* websocket ="ws://localhost:8081"
 }
 
 
