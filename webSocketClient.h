@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <boost/optional.hpp>
 
 using json = nlohmann::json;
 typedef websocketpp::client<websocketpp::config::asio_client> client;  // TLS 미사용 클라이언트 설정
@@ -57,26 +58,36 @@ public:
     }
 
     // 연결된 상태에서 차량 데이터를 서버로 전송
-    void sendCarData(const std::string& uni_num, double lat, double lon, double braking_distance) {
-        if (!connected) {
-            std::cerr << "Send error: WebSocket not connected" << std::endl;
-            return;
-        }
+   // 차량 데이터를 서버로 전송
+void sendCarData(const std::string& uni_num, double lat, double lon, double braking_distance, 
+                 boost::optional<bool> car_flag = boost::none) {  // car_flag는 선택적
 
-        json j = {
-            {"uni_num", uni_num},
-            {"car_lat", lat},
-            {"car_lon", lon},
-            {"braking_distance", braking_distance}
-        };
-
-        websocketpp::lib::error_code ec;
-        c.send(hdl, j.dump(), websocketpp::frame::opcode::text, ec);  // 데이터 전송
-
-        if (ec) {
-            std::cerr << "Send error: " << ec.message() << std::endl;
-        }
+    if (!connected) {
+        std::cerr << "Send error: WebSocket not connected" << std::endl;
+        return;
     }
+
+    json j = {
+        {"uni_num", uni_num},
+        {"car_lat", lat},
+        {"car_lon", lon},
+        {"braking_distance", braking_distance}
+    };
+
+    // car_flag가 전달된 경우만 JSON에 추가
+    if (car_flag.has_value()) {
+        j["car_flag"] = car_flag.value();
+    }
+
+    websocketpp::lib::error_code ec;
+    c.send(hdl, j.dump(), websocketpp::frame::opcode::text, ec);  // 데이터 전송
+
+    if (ec) {
+        std::cerr << "Send error: " << ec.message() << std::endl;
+    }
+
+    
+}
 
 private:
     client c;

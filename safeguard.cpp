@@ -1,7 +1,7 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT // HTTPS 기능 강제 활성화
 
-#include "OledFont8x16.h"
-#include "OledI2C.h"
+//#include "OledFont8x16.h"
+//#include "OledI2C.h"
 #include "gps.h"
 #include "lidar.h"
 #include "config.h"
@@ -18,23 +18,23 @@
 #include <cmath>
 #include <errno.h>
 #include <wiringSerial.h> // C 라이브러리 호환
+#include <wiringPi.h>
 #include <future>
 #include <nlohmann/json.hpp>
 #include <curl/curl.h>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 
-
+#define VIBRATION_PIN 0  // GPIO 17에 해당 (wiringPi 핀 번호 체계)
 
 using json = nlohmann::json;
 using namespace std;
 //-------------------------------------------------------------------------
 
-SSD1306::OledI2C oled{OLEDConfig::OLEDPort, OLEDConfig::OLEDAddress};
+//SSD1306::OledI2C oled{OLEDConfig::OLEDPort, OLEDConfig::OLEDAddress};
 MicropyGPS gps;
 int fd_gps;
 Lidar lidar;
-// vector<User> user_v;
 double brakingDistance;
 vector<User> user_v;
 httplib::SSLClient cli(HttpConfig::Address);
@@ -44,6 +44,14 @@ std::atomic<bool> sse_running{true};
 
 int connectDevices()
 {
+    if(wiringPiSetup() == -1)
+    {
+        std::cerr<<"wiringPi 초기화 실패!"<<std::endl;
+        return -1;
+    }
+
+    pinMode(VIBRATION_PIN,OUTPUT);
+    
 
     // 왼쪽 라이다의 시리얼 포트 열기
     if (lidar.openSerialPort(LidarConfig::LeftLidarPort, &(lidar.lPort)) == -1)
@@ -58,12 +66,14 @@ int connectDevices()
         cerr << "Failed to open rPort." << endl;
         return -1;
     }
-
-    if ((fd_gps = serialOpen(GPSConfig::GpsPort, GPSConfig::GpsBaudRate)) < 0)
+    while (true)
     {
+        if((fd_gps = serialOpen(GPSConfig::GpsPort, GPSConfig::GpsBaudRate)) > 0)
+        {break;}
         std::cerr << "Unable to open serial device: " << std::endl;
         return 1;
     }
+    cout<<"fd_gps : " << fd_gps <<"******************************************\n";
 
     return 0;
 }
@@ -71,26 +81,19 @@ int connectDevices()
 void getGPS()
 {
     int length = serialDataAvail(fd_gps);
+    cout<<"length : " << length<<"\n";
     if (length > 0)
     {
         for (int i = 0; i < length; i++)
         {
             char new_char = serialGetchar(fd_gps); // 한 문자를 읽      // cout<<new_char<<"\n";
+            cout<<new_char;
             gps.update(new_char);
         }
+        cout<<"\n";
     }
 }
 
-void drawDisplay()
-{
-    drawString8x16(SSD1306::OledPoint{0, 0}, // 왼쪽 :좌우 , 오른쪽 : 위아래
-                   "lat :" + gps.latitude_string() + "\n" +
-                       "lon :" + gps.longitude_string() + "\n" +
-                       "v :" + gps.speed_string(),
-                   SSD1306::PixelStyle::Set,
-                   oled);
-    oled.displayUpdate();
-}
 
 
 
@@ -212,12 +215,12 @@ int main()
 
         WebSocketClient wsClient(driver::websocket); 
         while (true)
-        {
+        {   
             
             getGPS();
-            wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance);//소켓으로 차량데이터 넘김// asyncHTTP();
-
-            drawDisplay();
+            wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance,false);//소켓으로 차량데이터 넘김// asyncHTTP();
+            cout<<"gpsLatitude : " << gps.getLatitude() << " gpsLongitude : "<<gps.getLongitude()<<"\n";
+           // drawDisplay();
 
             lidar.getTFminiData(0, lidar.lPort);
             lidar.getTFminiData(1, lidar.rPort);
@@ -226,12 +229,15 @@ int main()
             if (lidar.getLeft() <= LidarConfig::LimitDistance || lidar.getRight() <= LidarConfig::LimitDistance)
             {
                 calculateBrakingDistance();
+                digitalWrite(VIBRATION_PIN,LOW);
                 for (User user : user_v)
                 {
                     if (user.getUserDist() < brakingDistance && user.getUserFlag())
                     {
                         // 경고 울림!
                         cout << "*************경고!!*************";
+                        wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance, true);//소켓으로 차량데이터 넘김
+                        digitalWrite(VIBRATION_PIN,HIGH);
                         // 해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..
                     }
                     continue;
@@ -388,3 +394,14 @@ void getUserData() {
     }
 }
 */
+
+// void drawDisplay()
+// {
+//     drawString8x16(SSD1306::OledPoint{0, 0}, // 왼쪽 :좌우 , 오른쪽 : 위아래
+//                    "lat :" + gps.latitude_string() + "\n" +
+//                        "lon :" + gps.longitude_string() + "\n" +
+//                        "v :" + gps.speed_string(),
+//                    SSD1306::PixelStyle::Set,
+//                    oled);
+//     oled.displayUpdate();
+// }

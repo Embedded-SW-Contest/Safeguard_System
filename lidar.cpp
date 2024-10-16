@@ -57,7 +57,10 @@ int Lidar::openSerialPort(const char *portName, sp_port **port) {
         return -1;
     }
 
+    
     result = sp_open(*port, SP_MODE_READ_WRITE);
+    sp_set_baudrate(*port,115200);
+    
     if (result != SP_OK) {
         cerr << "Failed to open port: " << portName << endl;
         return -1;
