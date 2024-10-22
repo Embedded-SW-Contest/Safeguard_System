@@ -105,7 +105,6 @@ safeguard-system
  ![image](https://github.com/user-attachments/assets/5c9458cf-c645-4666-ad0d-46f701e99b2d)
 
 
-https://github.com/user-attachments/assets/44c9d56a-cfbf-4d5d-84fd-1dab7e16be33
 
 ## 하드웨어
 
