@@ -105,4 +105,12 @@ safeguard-system
  ![image](https://github.com/user-attachments/assets/5c9458cf-c645-4666-ad0d-46f701e99b2d)
 
 
+https://github.com/user-attachments/assets/44c9d56a-cfbf-4d5d-84fd-1dab7e16be33
+
+## 하드웨어
+
+| 라즈베리파이 | 라이다 센서|  GPS센서   |  진동센서   | 터치 스크린|
+| :--------: | :--------: | :------: | :------------: | :-----: |
+| <br> <img src="https://i.namu.wiki/i/GNen2Qk9XWosooa43uhhUwcMuWSFEs_YZL5SQmxJXws27PKGq6ojQMevO2a5AlX7PlZjR3eBPsjAw2CK-tmirQ.webp" width="100"/>  | <br> <img src="https://github.com/user-attachments/assets/b9346f2b-7a97-4ded-a86e-b64dfbc49ea0" width="100"/> | <br> <img src="https://github.com/user-attachments/assets/ebe90fd9-8890-42d8-b018-41480e71981b" width="100"/>|<br> <img src="https://github.com/user-attachments/assets/44c9d56a-cfbf-4d5d-84fd-1dab7e16be33" width="100"/> |<br><img src="https://github.com/user-attachments/assets/f58a69d0-8079-4b5b-9e88-6bf841cd51b6" width="100"/> |
+
  
