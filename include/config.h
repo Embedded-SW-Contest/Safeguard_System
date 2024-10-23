@@ -7,7 +7,7 @@
 namespace LidarConfig {
     // Lidar 설정 값
     constexpr const char* LeftLidarPort = "/dev/ttyUSB0";
-    constexpr const char* RightLidarPort = "/dev/ttyAMA1";
+    constexpr const char* RightLidarPort = "/dev/ttyAMA2";
     static constexpr int LimitDistance = 3000;
 
   

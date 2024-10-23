@@ -1,16 +1,14 @@
 #define CPPHTTPLIB_OPENSSL_SUPPORT // HTTPS 기능 강제 활성화
 
-//#include "OledFont8x16.h"
-//#include "OledI2C.h"
+
 #include "gps.h"
 #include "lidar.h"
 #include "config.h"
 #include "httplib.h" // restAPI 통신
 #include "user.h"
-// #include "webSocketClient.h"
 
-// #include <vector>
-// #include <algorithm>
+
+
 #include <iostream>
 #include <random>
 #include <stdio.h>
@@ -22,8 +20,7 @@
 #include <future>
 #include <nlohmann/json.hpp>
 #include <curl/curl.h>
-// #include <websocketpp/config/asio_no_tls_client.hpp>
-// #include <websocketpp/client.hpp>
+
 
 #define VIBRATION_PIN 0  // GPIO 17에 해당 (wiringPi 핀 번호 체계)
 
@@ -31,7 +28,6 @@ using json = nlohmann::json;
 using namespace std;
 //-------------------------------------------------------------------------
 
-//SSD1306::OledI2C oled{OLEDConfig::OLEDPort, OLEDConfig::OLEDAddress};
 MicropyGPS gps;
 int fd_gps;
 Lidar lidar;
@@ -88,7 +84,7 @@ void getGPS()
     {
         for (int i = 0; i < length; i++)
         {
-            char new_char = serialGetchar(fd_gps); // 한 문자를 읽      // cout<<new_char<<"\n";
+            char new_char = serialGetchar(fd_gps); 
             cout<<new_char;
             gps.update(new_char);
         }
@@ -104,6 +100,7 @@ void calculateBrakingDistance()
     double speedKPH = gps.getSpeed();
     double speedMPS = speedKPH * 1000 / 3600;
     brakingDistance = speedMPS * driver::ReactionTime + pow(speedMPS, 2) / (2 * driver::accelMPSS);
+   
 }
 
 size_t onReceiveData(char *ptr, size_t size, size_t nmemb, void *userdata)
@@ -209,13 +206,16 @@ void restartSSEIfNeeded() {
 
 void postCarData()
 {
+    if(carFlag){
+        
+    }
     // POST 요청에 보낼 JSON 데이터 생성
     json requestBody = {
         {"uni_num", "CAR"},
         {"car_lat", gps.getLatitude()},
         {"car_lon", gps.getLongitude()},
         {"braking_distance", brakingDistance},
-        {"car_flag,",carFlag}};
+        {"car_flag",carFlag}};
 
     // JSON 데이터를 문자열로 변환
     std::string requestData = requestBody.dump();
@@ -227,10 +227,14 @@ void postCarData()
     // POST 요청 보내기
     auto res = cli.Post("https://uwb-safeguard.shop/api/cars", headers, requestData, "application/json");
 
+  
     // 응답 확인
     if (res && (res->status == 200 || res->status == 201))
     {
         cout << "Status: " << res->status << endl;
+          if(carFlag){
+            usleep(2000000);
+        }
         // cout << "Body: " << res->body << endl;
     }
     else
@@ -252,20 +256,11 @@ void postCarData()
 
 
 
-
-//future<void> futureGetData;
 future<void> futurePostData;
-//bool isGetDataRunning = false;
 bool isPostDataRunning = false;
 void asyncHTTP()
 {
-    // if (isGetDataRunning && futureGetData.valid() &&
-    //     futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
-    // {
-    //     futureGetData.get(); // 비동기 작업의 결과 가져오기
-    //     isGetDataRunning = false;
-    // }
-
+    
     // 이전 비동기 작업이 완료되었는지 확인 (POST)
     if (isPostDataRunning && futurePostData.valid() &&
         futurePostData.wait_for(chrono::seconds(0)) == future_status::ready)
@@ -274,13 +269,7 @@ void asyncHTTP()
         isPostDataRunning = false;
     }
 
-    // // 새로운 비동기 GET 작업 실행
-    // if (!isGetDataRunning)
-    // {
-    //     futureGetData = async(std::launch::async, getUserData);
-    //     isGetDataRunning = true;
-    // }
-
+ 
     // 새로운 비동기 POST 작업 실행
     if (!isPostDataRunning)
     {
@@ -288,7 +277,7 @@ void asyncHTTP()
         isPostDataRunning = true;
     }
 }
-//---
+
 
 
 int main()
@@ -305,29 +294,31 @@ int main()
             
             getGPS();
             carFlag = false;
-            asyncHTTP();//wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance,false);//소켓으로 차량데이터 넘김// ;
-            cout<<"gpsLatitude : " << gps.getLatitude() << " gpsLongitude : "<<gps.getLongitude()<<"\n";
-            cout<<"gps_speed : " <<gps.getSpeed()<<"\n";
-           // drawDisplay();
+            asyncHTTP();//
+             cout<<"gpsLatitude : " << gps.getLatitude() << " gpsLongitude : "<<gps.getLongitude()<<"\n";
+             cout<<"gps_speed : " <<gps.getSpeed()<<"\n";
+       
 
             lidar.getTFminiData(0, lidar.lPort);
             lidar.getTFminiData(1, lidar.rPort);
             lidar.showAll();
 
+            
             if (lidar.getLeft() <= LidarConfig::LimitDistance || lidar.getRight() <= LidarConfig::LimitDistance)
             {
                 calculateBrakingDistance();
                 digitalWrite(VIBRATION_PIN,LOW);
                 for (User user : user_v)
                 {
+
                     if (user.getUserDist() < brakingDistance && user.getUserFlag())
                     {
                         // 경고 울림!
                         cout << "*************경고!!*************";
                         carFlag = true;
-                        asyncHTTP();//wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance, true);//소켓으로 차량데이터 넘김
-                        digitalWrite(VIBRATION_PIN,HIGH);
-                        // 해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..
+                        postCarData();/
+                        cout<<"carFlag: "<<carFlag<<"*********************\n";
+                        digitalWrite(VIBRATION_PIN,HIGH);    
                         usleep(2000000);
                     }
                     continue;
@@ -338,20 +329,19 @@ int main()
             usleep(100000);
         }
 
-        // oled.clear();
-        // oled.displayUpdate();
+
     }
 
     catch (std::exception &e)
     {
         if (lidar.lPort != nullptr)
         {
-            //    sp_close(lidar.lPort);
+            
             std::cerr << "Exception caught -> fail to connect lidar.lport  " << std::endl;
         }
         if (lidar.rPort != nullptr)
         {
-            //    sp_close(lidar.rPort);
+           
             std::cerr << "Exception caught -> faile to connect lidar.rport " << std::endl;
         }
         std::cerr << e.what() << "\n";
@@ -361,55 +351,3 @@ int main()
 }
 
 
-
-/*SSE로 대체함
-void getUserData() {
-
-    auto res = cli.Get("/api/users");
-
-    if (res && (res->status == 200))
-    {
-        cout << "Status: " << res->status << endl;
-        json j = json::parse(res->body);
-        user_v.clear();
-
-        if (j.is_array())
-        {
-            for (const auto &item : j)
-            {
-                long user_id = item["user_id"].get<long>();
-                std::string uni_num = item["uni_num"].get<std::string>();
-                double user_dist = item["user_dist"].get<double>();
-                bool user_flag = item["user_flag"].get<int>();
-                cout << "user_flag : " << user_flag << "flagflagflagflag";
-                user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
-            }
-        }
-        else
-        {
-            long user_id = j["user_id"].get<long>();
-            std::string uni_num = j["uni_num"].get<std::string>();
-            double user_dist = j["user_dist"].get<double>();
-            bool user_flag = j["user_flag"].get<int>();
-
-            user_v.emplace_back(user_id, uni_num, user_dist, user_flag);
-        }
-    }
-    else
-    {
-        auto err = res.error();
-        std::cerr << "Request failed with error(getUserData): " << httplib::to_string(err) << "\n";
-    }
-}
-*/
-
-// void drawDisplay()
-// {
-//     drawString8x16(SSD1306::OledPoint{0, 0}, // 왼쪽 :좌우 , 오른쪽 : 위아래
-//                    "lat :" + gps.latitude_string() + "\n" +
-//                        "lon :" + gps.longitude_string() + "\n" +
-//                        "v :" + gps.speed_string(),
-//                    SSD1306::PixelStyle::Set,
-//                    oled);
-//     oled.displayUpdate();
-// }

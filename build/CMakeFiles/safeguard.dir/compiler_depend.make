@@ -213,11 +213,11 @@ CMakeFiles/safeguard.dir/gps.cpp.o: /home/user/_safeguard/safeguard-system/gps.c
   /usr/include/c++/12/bits/uses_allocator.h \
   /usr/include/c++/12/bits/stl_multimap.h \
   /usr/include/c++/12/bits/erase_if.h \
-  /home/user/_safeguard/safeguard-system/gps.h
+  /home/user/_safeguard/safeguard-system/include/gps.h
 
 CMakeFiles/safeguard.dir/lidar.cpp.o: /home/user/_safeguard/safeguard-system/lidar.cpp \
   /usr/include/stdc-predef.h \
-  /home/user/_safeguard/safeguard-system/lidar.h \
+  /home/user/_safeguard/safeguard-system/include/lidar.h \
   /usr/include/c++/12/iostream \
   /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \
   /usr/include/aarch64-linux-gnu/c++/12/bits/os_defines.h \
@@ -410,7 +410,7 @@ CMakeFiles/safeguard.dir/lidar.cpp.o: /home/user/_safeguard/safeguard-system/lid
 
 CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system/safeguard.cpp \
   /usr/include/stdc-predef.h \
-  /home/user/_safeguard/safeguard-system/gps.h \
+  /home/user/_safeguard/safeguard-system/include/gps.h \
   /usr/include/c++/12/iostream \
   /usr/include/aarch64-linux-gnu/c++/12/bits/c++config.h \
   /usr/include/aarch64-linux-gnu/c++/12/bits/os_defines.h \
@@ -621,7 +621,7 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
   /usr/include/c++/12/bits/uses_allocator.h \
   /usr/include/c++/12/bits/stl_multimap.h \
   /usr/include/c++/12/bits/erase_if.h \
-  /home/user/_safeguard/safeguard-system/lidar.h \
+  /home/user/_safeguard/safeguard-system/include/lidar.h \
   /usr/include/libserialport.h \
   /usr/include/unistd.h \
   /usr/include/aarch64-linux-gnu/bits/posix_opt.h \
@@ -631,8 +631,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
   /usr/include/aarch64-linux-gnu/bits/getopt_core.h \
   /usr/include/aarch64-linux-gnu/bits/unistd_ext.h \
   /usr/include/linux/close_range.h \
-  /home/user/_safeguard/safeguard-system/config.h \
-  /home/user/_safeguard/safeguard-system/httplib.h \
+  /home/user/_safeguard/safeguard-system/include/config.h \
+  /home/user/_safeguard/safeguard-system/include/httplib.h \
   /usr/include/arpa/inet.h \
   /usr/include/netinet/in.h \
   /usr/include/aarch64-linux-gnu/sys/socket.h \
@@ -892,7 +892,7 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
   /usr/include/openssl/srtp.h \
   /usr/include/openssl/x509v3.h \
   /usr/include/openssl/x509v3err.h \
-  /home/user/_safeguard/safeguard-system/user.h \
+  /home/user/_safeguard/safeguard-system/include/user.h \
   /usr/local/include/wiringSerial.h \
   /usr/local/include/wiringPi.h \
   /usr/include/c++/12/future \
@@ -1008,17 +1008,9 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/aarch64-linux-gnu/bits/in.h:
 
-/home/user/_safeguard/safeguard-system/config.h:
-
 /usr/include/asm-generic/bitsperlong.h:
 
 /usr/include/asm-generic/types.h:
-
-/usr/lib/linux/uapi/arm64/asm/bitsperlong.h:
-
-/usr/include/aarch64-linux-gnu/bits/byteswap.h:
-
-/usr/include/c++/12/typeinfo:
 
 /usr/include/linux/stddef.h:
 
@@ -1034,7 +1026,11 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/aarch64-linux-gnu/bits/socket_type.h:
 
-/usr/include/c++/12/bits/stringfwd.h:
+/usr/lib/linux/uapi/arm64/asm/bitsperlong.h:
+
+/usr/include/aarch64-linux-gnu/bits/byteswap.h:
+
+/usr/include/c++/12/typeinfo:
 
 /usr/include/linux/close_range.h:
 
@@ -1150,8 +1146,6 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/openssl/types.h:
 
-/home/user/_safeguard/safeguard-system/user.h:
-
 /usr/include/c++/12/ext/string_conversions.h:
 
 /usr/include/c++/12/bits/vector.tcc:
@@ -1185,6 +1179,14 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/aarch64-linux-gnu/bits/long-double.h:
 
 /usr/include/aarch64-linux-gnu/bits/posix1_lim.h:
+
+/usr/include/c++/12/bits/stringfwd.h:
+
+/home/user/_safeguard/safeguard-system/include/httplib.h:
+
+/usr/include/c++/12/bits/stl_iterator.h:
+
+/usr/include/openssl/conftypes.h:
 
 /usr/include/aarch64-linux-gnu/bits/libc-header-start.h:
 
@@ -1278,6 +1280,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/c++/12/backward/auto_ptr.h:
 
+/usr/include/openssl/conf.h:
+
 /usr/include/nlohmann/detail/conversions/to_json.hpp:
 
 /usr/include/aarch64-linux-gnu/bits/fcntl-linux.h:
@@ -1309,10 +1313,6 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h:
 
 /usr/include/aarch64-linux-gnu/bits/wordsize.h:
-
-/usr/include/openssl/conf.h:
-
-/home/user/_safeguard/safeguard-system/httplib.h:
 
 /usr/include/pthread.h:
 
@@ -1416,8 +1416,6 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/nlohmann/byte_container_with_subtype.hpp:
 
-/home/user/_safeguard/safeguard-system/gps.h:
-
 /usr/include/c++/12/bits/ios_base.h:
 
 /usr/include/aarch64-linux-gnu/bits/local_lim.h:
@@ -1506,6 +1504,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/c++/12/bits/allocator.h:
 
+/home/user/_safeguard/safeguard-system/include/config.h:
+
 /usr/include/c++/12/bits/refwrap.h:
 
 /usr/include/stdio.h:
@@ -1586,10 +1586,6 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/lib/linux/uapi/arm64/asm/posix_types.h:
 
-/usr/include/c++/12/bits/stl_iterator.h:
-
-/usr/include/openssl/conftypes.h:
-
 /usr/include/c++/12/bits/stl_function.h:
 
 /usr/include/math.h:
@@ -1597,6 +1593,10 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/aarch64-linux-gnu/bits/environments.h:
 
 /usr/include/c++/12/ext/numeric_traits.h:
+
+/home/user/_safeguard/safeguard-system/include/gps.h:
+
+/usr/include/openssl/pkcs7.h:
 
 /usr/include/c++/12/bits/range_access.h:
 
@@ -1623,8 +1623,6 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/c++/12/bits/atomic_lockfree_defines.h:
 
 /usr/include/c++/12/bits/gslice_array.h:
-
-/home/user/_safeguard/safeguard-system/lidar.h:
 
 /usr/include/signal.h:
 
@@ -1840,6 +1838,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/c++/12/bits/stl_raw_storage_iter.h:
 
+/home/user/_safeguard/safeguard-system/include/lidar.h:
+
 /usr/include/c++/12/bits/shared_ptr_atomic.h:
 
 /usr/include/c++/12/random:
@@ -2010,8 +2010,6 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 
 /usr/include/openssl/x509err.h:
 
-/usr/include/openssl/pkcs7.h:
-
 /usr/include/aarch64-linux-gnu/c++/12/bits/c++allocator.h:
 
 /usr/include/openssl/pemerr.h:
@@ -2029,6 +2027,8 @@ CMakeFiles/safeguard.dir/safeguard.cpp.o: /home/user/_safeguard/safeguard-system
 /usr/include/openssl/srtp.h:
 
 /usr/include/openssl/x509v3.h:
+
+/home/user/_safeguard/safeguard-system/include/user.h:
 
 /usr/include/c++/12/map:
 
