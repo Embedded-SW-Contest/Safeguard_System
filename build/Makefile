@@ -117,17 +117,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named SSD1306
+# Target rules for targets named safeguard_lib
 
 # Build rule for target.
-SSD1306: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 SSD1306
-.PHONY : SSD1306
+safeguard_lib: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 safeguard_lib
+.PHONY : safeguard_lib
 
 # fast build rule for target.
-SSD1306/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/build
-.PHONY : SSD1306/fast
+safeguard_lib/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safeguard_lib.dir/build.make CMakeFiles/safeguard_lib.dir/build
+.PHONY : safeguard_lib/fast
 
 #=============================================================================
 # Target rules for targets named safeguard
@@ -171,7 +171,7 @@ lib/FileDescriptor.o: lib/FileDescriptor.cxx.o
 
 # target to build an object file
 lib/FileDescriptor.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/FileDescriptor.cxx.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safeguard_lib.dir/build.make CMakeFiles/safeguard_lib.dir/lib/FileDescriptor.cxx.o
 .PHONY : lib/FileDescriptor.cxx.o
 
 lib/FileDescriptor.i: lib/FileDescriptor.cxx.i
@@ -179,7 +179,7 @@ lib/FileDescriptor.i: lib/FileDescriptor.cxx.i
 
 # target to preprocess a source file
 lib/FileDescriptor.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/FileDescriptor.cxx.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safeguard_lib.dir/build.make CMakeFiles/safeguard_lib.dir/lib/FileDescriptor.cxx.i
 .PHONY : lib/FileDescriptor.cxx.i
 
 lib/FileDescriptor.s: lib/FileDescriptor.cxx.s
@@ -187,176 +187,8 @@ lib/FileDescriptor.s: lib/FileDescriptor.cxx.s
 
 # target to generate assembly for a file
 lib/FileDescriptor.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/FileDescriptor.cxx.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/safeguard_lib.dir/build.make CMakeFiles/safeguard_lib.dir/lib/FileDescriptor.cxx.s
 .PHONY : lib/FileDescriptor.cxx.s
-
-lib/OledFont8x12.o: lib/OledFont8x12.cxx.o
-.PHONY : lib/OledFont8x12.o
-
-# target to build an object file
-lib/OledFont8x12.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x12.cxx.o
-.PHONY : lib/OledFont8x12.cxx.o
-
-lib/OledFont8x12.i: lib/OledFont8x12.cxx.i
-.PHONY : lib/OledFont8x12.i
-
-# target to preprocess a source file
-lib/OledFont8x12.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x12.cxx.i
-.PHONY : lib/OledFont8x12.cxx.i
-
-lib/OledFont8x12.s: lib/OledFont8x12.cxx.s
-.PHONY : lib/OledFont8x12.s
-
-# target to generate assembly for a file
-lib/OledFont8x12.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x12.cxx.s
-.PHONY : lib/OledFont8x12.cxx.s
-
-lib/OledFont8x16.o: lib/OledFont8x16.cxx.o
-.PHONY : lib/OledFont8x16.o
-
-# target to build an object file
-lib/OledFont8x16.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x16.cxx.o
-.PHONY : lib/OledFont8x16.cxx.o
-
-lib/OledFont8x16.i: lib/OledFont8x16.cxx.i
-.PHONY : lib/OledFont8x16.i
-
-# target to preprocess a source file
-lib/OledFont8x16.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x16.cxx.i
-.PHONY : lib/OledFont8x16.cxx.i
-
-lib/OledFont8x16.s: lib/OledFont8x16.cxx.s
-.PHONY : lib/OledFont8x16.s
-
-# target to generate assembly for a file
-lib/OledFont8x16.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x16.cxx.s
-.PHONY : lib/OledFont8x16.cxx.s
-
-lib/OledFont8x8.o: lib/OledFont8x8.cxx.o
-.PHONY : lib/OledFont8x8.o
-
-# target to build an object file
-lib/OledFont8x8.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x8.cxx.o
-.PHONY : lib/OledFont8x8.cxx.o
-
-lib/OledFont8x8.i: lib/OledFont8x8.cxx.i
-.PHONY : lib/OledFont8x8.i
-
-# target to preprocess a source file
-lib/OledFont8x8.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x8.cxx.i
-.PHONY : lib/OledFont8x8.cxx.i
-
-lib/OledFont8x8.s: lib/OledFont8x8.cxx.s
-.PHONY : lib/OledFont8x8.s
-
-# target to generate assembly for a file
-lib/OledFont8x8.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledFont8x8.cxx.s
-.PHONY : lib/OledFont8x8.cxx.s
-
-lib/OledGraphics.o: lib/OledGraphics.cxx.o
-.PHONY : lib/OledGraphics.o
-
-# target to build an object file
-lib/OledGraphics.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledGraphics.cxx.o
-.PHONY : lib/OledGraphics.cxx.o
-
-lib/OledGraphics.i: lib/OledGraphics.cxx.i
-.PHONY : lib/OledGraphics.i
-
-# target to preprocess a source file
-lib/OledGraphics.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledGraphics.cxx.i
-.PHONY : lib/OledGraphics.cxx.i
-
-lib/OledGraphics.s: lib/OledGraphics.cxx.s
-.PHONY : lib/OledGraphics.s
-
-# target to generate assembly for a file
-lib/OledGraphics.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledGraphics.cxx.s
-.PHONY : lib/OledGraphics.cxx.s
-
-lib/OledHardware.o: lib/OledHardware.cxx.o
-.PHONY : lib/OledHardware.o
-
-# target to build an object file
-lib/OledHardware.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledHardware.cxx.o
-.PHONY : lib/OledHardware.cxx.o
-
-lib/OledHardware.i: lib/OledHardware.cxx.i
-.PHONY : lib/OledHardware.i
-
-# target to preprocess a source file
-lib/OledHardware.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledHardware.cxx.i
-.PHONY : lib/OledHardware.cxx.i
-
-lib/OledHardware.s: lib/OledHardware.cxx.s
-.PHONY : lib/OledHardware.s
-
-# target to generate assembly for a file
-lib/OledHardware.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledHardware.cxx.s
-.PHONY : lib/OledHardware.cxx.s
-
-lib/OledI2C.o: lib/OledI2C.cxx.o
-.PHONY : lib/OledI2C.o
-
-# target to build an object file
-lib/OledI2C.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledI2C.cxx.o
-.PHONY : lib/OledI2C.cxx.o
-
-lib/OledI2C.i: lib/OledI2C.cxx.i
-.PHONY : lib/OledI2C.i
-
-# target to preprocess a source file
-lib/OledI2C.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledI2C.cxx.i
-.PHONY : lib/OledI2C.cxx.i
-
-lib/OledI2C.s: lib/OledI2C.cxx.s
-.PHONY : lib/OledI2C.s
-
-# target to generate assembly for a file
-lib/OledI2C.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledI2C.cxx.s
-.PHONY : lib/OledI2C.cxx.s
-
-lib/OledPixel.o: lib/OledPixel.cxx.o
-.PHONY : lib/OledPixel.o
-
-# target to build an object file
-lib/OledPixel.cxx.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledPixel.cxx.o
-.PHONY : lib/OledPixel.cxx.o
-
-lib/OledPixel.i: lib/OledPixel.cxx.i
-.PHONY : lib/OledPixel.i
-
-# target to preprocess a source file
-lib/OledPixel.cxx.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledPixel.cxx.i
-.PHONY : lib/OledPixel.cxx.i
-
-lib/OledPixel.s: lib/OledPixel.cxx.s
-.PHONY : lib/OledPixel.s
-
-# target to generate assembly for a file
-lib/OledPixel.cxx.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/SSD1306.dir/build.make CMakeFiles/SSD1306.dir/lib/OledPixel.cxx.s
-.PHONY : lib/OledPixel.cxx.s
 
 lidar.o: lidar.cpp.o
 .PHONY : lidar.o
@@ -414,35 +246,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... SSD1306"
 	@echo "... safeguard"
+	@echo "... safeguard_lib"
 	@echo "... gps.o"
 	@echo "... gps.i"
 	@echo "... gps.s"
 	@echo "... lib/FileDescriptor.o"
 	@echo "... lib/FileDescriptor.i"
 	@echo "... lib/FileDescriptor.s"
-	@echo "... lib/OledFont8x12.o"
-	@echo "... lib/OledFont8x12.i"
-	@echo "... lib/OledFont8x12.s"
-	@echo "... lib/OledFont8x16.o"
-	@echo "... lib/OledFont8x16.i"
-	@echo "... lib/OledFont8x16.s"
-	@echo "... lib/OledFont8x8.o"
-	@echo "... lib/OledFont8x8.i"
-	@echo "... lib/OledFont8x8.s"
-	@echo "... lib/OledGraphics.o"
-	@echo "... lib/OledGraphics.i"
-	@echo "... lib/OledGraphics.s"
-	@echo "... lib/OledHardware.o"
-	@echo "... lib/OledHardware.i"
-	@echo "... lib/OledHardware.s"
-	@echo "... lib/OledI2C.o"
-	@echo "... lib/OledI2C.i"
-	@echo "... lib/OledI2C.s"
-	@echo "... lib/OledPixel.o"
-	@echo "... lib/OledPixel.i"
-	@echo "... lib/OledPixel.s"
 	@echo "... lidar.o"
 	@echo "... lidar.i"
 	@echo "... lidar.s"

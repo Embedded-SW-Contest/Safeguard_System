@@ -10,16 +10,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 
 #--------------------------------------------------------------------------
 
-add_library(SSD1306 STATIC lib/FileDescriptor.cxx
-						   lib/OledHardware.cxx
-						   lib/OledPixel.cxx
-						   lib/OledFont8x8.cxx
-						   lib/OledFont8x12.cxx
-						   lib/OledFont8x16.cxx
-						   lib/OledGraphics.cxx
-						   lib/OledI2C.cxx)
+add_library(safeguard_lib STATIC lib/FileDescriptor.cxx
+			)
 
-include_directories(${PROJECT_SOURCE_DIR}/lib)
+include_directories(${PROJECT_SOURCE_DIR}/safeguard_lib)
 link_directories(/usr/lib/aarch64-linux-gnu)
 
 set(EXTRA_LIBS ${EXTRA_LIBS} HD44780Lcd)
@@ -31,7 +25,7 @@ find_package(OpenSSL REQUIRED)
 
 
 add_executable(safeguard safeguard.cpp gps.cpp lidar.cpp)
-target_link_libraries(safeguard SSD1306)
+target_link_libraries(safeguard safeguard_lib)
 
 
 

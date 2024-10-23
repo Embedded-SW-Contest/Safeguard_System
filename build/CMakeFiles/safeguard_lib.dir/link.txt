@@ -1,0 +1,2 @@
+/usr/bin/ar qc lib/libsafeguard_lib.a CMakeFiles/safeguard_lib.dir/lib/FileDescriptor.cxx.o
+/usr/bin/ranlib lib/libsafeguard_lib.a

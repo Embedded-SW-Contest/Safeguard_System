@@ -8,7 +8,7 @@ namespace LidarConfig {
     // Lidar 설정 값
     constexpr const char* LeftLidarPort = "/dev/ttyUSB0";
     constexpr const char* RightLidarPort = "/dev/ttyAMA1";
-    static constexpr int LimitDistance = 1000;
+    static constexpr int LimitDistance = 3000;
 
   
 }
@@ -26,8 +26,8 @@ namespace OLEDConfig{
 }
 
 namespace HttpConfig{
-    constexpr const char* Address = "00gym.shop";
-    constexpr const char* full_Address_GetUser ="https://00gym.shop/api/users";
+    constexpr const char* Address = "uwb-safeguard.shop";
+    constexpr const char* full_Address_GetUser ="https://uwb-safeguard.shop/api/users";
 }
 
 namespace driver{

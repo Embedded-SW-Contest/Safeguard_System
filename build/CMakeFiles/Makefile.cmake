@@ -49,6 +49,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/SSD1306.dir/DependInfo.cmake"
+  "CMakeFiles/safeguard_lib.dir/DependInfo.cmake"
   "CMakeFiles/safeguard.dir/DependInfo.cmake"
   )

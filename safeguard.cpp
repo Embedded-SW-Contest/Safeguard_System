@@ -7,7 +7,7 @@
 #include "config.h"
 #include "httplib.h" // restAPI 통신
 #include "user.h"
-#include "webSocketClient.h"
+// #include "webSocketClient.h"
 
 // #include <vector>
 // #include <algorithm>
@@ -22,8 +22,8 @@
 #include <future>
 #include <nlohmann/json.hpp>
 #include <curl/curl.h>
-#include <websocketpp/config/asio_no_tls_client.hpp>
-#include <websocketpp/client.hpp>
+// #include <websocketpp/config/asio_no_tls_client.hpp>
+// #include <websocketpp/client.hpp>
 
 #define VIBRATION_PIN 0  // GPIO 17에 해당 (wiringPi 핀 번호 체계)
 
@@ -41,6 +41,8 @@ httplib::SSLClient cli(HttpConfig::Address);
 
 std::thread sse_thread;
 std::atomic<bool> sse_running{true};
+
+bool carFlag;
 
 int connectDevices()
 {
@@ -204,6 +206,91 @@ void restartSSEIfNeeded() {
 
 
 
+
+void postCarData()
+{
+    // POST 요청에 보낼 JSON 데이터 생성
+    json requestBody = {
+        {"uni_num", "CAR"},
+        {"car_lat", gps.getLatitude()},
+        {"car_lon", gps.getLongitude()},
+        {"braking_distance", brakingDistance},
+        {"car_flag,",carFlag}};
+
+    // JSON 데이터를 문자열로 변환
+    std::string requestData = requestBody.dump();
+
+    // 헤더 설정 (Content-Type을 JSON으로 지정)
+    httplib::Headers headers = {
+        {"Content-Type", "application/json"}};
+
+    // POST 요청 보내기
+    auto res = cli.Post("https://uwb-safeguard.shop/api/cars", headers, requestData, "application/json");
+
+    // 응답 확인
+    if (res && (res->status == 200 || res->status == 201))
+    {
+        cout << "Status: " << res->status << endl;
+        // cout << "Body: " << res->body << endl;
+    }
+    else
+    {
+        if (res)
+        {
+            cerr << "Request failed. Status:(PostCarData) " << res->status << endl;
+        }
+        else
+        {
+            auto err = res.error();
+            cerr << "Request error:(PostCarData) " << httplib::to_string(err) << endl;
+        }
+    }
+}
+
+
+
+
+
+
+
+//future<void> futureGetData;
+future<void> futurePostData;
+//bool isGetDataRunning = false;
+bool isPostDataRunning = false;
+void asyncHTTP()
+{
+    // if (isGetDataRunning && futureGetData.valid() &&
+    //     futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
+    // {
+    //     futureGetData.get(); // 비동기 작업의 결과 가져오기
+    //     isGetDataRunning = false;
+    // }
+
+    // 이전 비동기 작업이 완료되었는지 확인 (POST)
+    if (isPostDataRunning && futurePostData.valid() &&
+        futurePostData.wait_for(chrono::seconds(0)) == future_status::ready)
+    {
+        futurePostData.get(); // 비동기 작업의 결과 가져오기
+        isPostDataRunning = false;
+    }
+
+    // // 새로운 비동기 GET 작업 실행
+    // if (!isGetDataRunning)
+    // {
+    //     futureGetData = async(std::launch::async, getUserData);
+    //     isGetDataRunning = true;
+    // }
+
+    // 새로운 비동기 POST 작업 실행
+    if (!isPostDataRunning)
+    {
+        futurePostData = async(std::launch::async, postCarData);
+        isPostDataRunning = true;
+    }
+}
+//---
+
+
 int main()
 {
     try
@@ -212,14 +299,15 @@ int main()
         lidar = Lidar();
         connectDevices();
         sse_thread = std::thread(startSSE);
-
-        WebSocketClient wsClient(driver::websocket); 
+        
         while (true)
         {   
             
             getGPS();
-            wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance,false);//소켓으로 차량데이터 넘김// asyncHTTP();
+            carFlag = false;
+            asyncHTTP();//wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance,false);//소켓으로 차량데이터 넘김// ;
             cout<<"gpsLatitude : " << gps.getLatitude() << " gpsLongitude : "<<gps.getLongitude()<<"\n";
+            cout<<"gps_speed : " <<gps.getSpeed()<<"\n";
            // drawDisplay();
 
             lidar.getTFminiData(0, lidar.lPort);
@@ -236,9 +324,11 @@ int main()
                     {
                         // 경고 울림!
                         cout << "*************경고!!*************";
-                        wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance, true);//소켓으로 차량데이터 넘김
+                        carFlag = true;
+                        asyncHTTP();//wsClient.sendCarData(driver::car_name, gps.getLatitude(), gps.getLongitude(),  brakingDistance, true);//소켓으로 차량데이터 넘김
                         digitalWrite(VIBRATION_PIN,HIGH);
                         // 해당 user의 car_flag값을 true로 바꿔서 휴대폰에서도 울리게..
+                        usleep(2000000);
                     }
                     continue;
                 }
@@ -270,88 +360,6 @@ int main()
     return 0;
 }
 
-//webSocket으로 대체---
-// void postCarData()
-// {
-//     // POST 요청에 보낼 JSON 데이터 생성
-//     json requestBody = {
-//         {"uni_num", "CAR2"},
-//         {"car_lat", gps.getLatitude()},
-//         {"car_lon", gps.getLongitude()},
-//         {"braking_distance", brakingDistance}};
-
-//     // JSON 데이터를 문자열로 변환
-//     std::string requestData = requestBody.dump();
-
-//     // 헤더 설정 (Content-Type을 JSON으로 지정)
-//     httplib::Headers headers = {
-//         {"Content-Type", "application/json"}};
-
-//     // POST 요청 보내기
-//     auto res = cli.Post("/api/cars", headers, requestData, "application/json");
-
-//     // 응답 확인
-//     if (res && (res->status == 200 || res->status == 201))
-//     {
-//         cout << "Status: " << res->status << endl;
-//         // cout << "Body: " << res->body << endl;
-//     }
-//     else
-//     {
-//         if (res)
-//         {
-//             cerr << "Request failed. Status:(PostCarData) " << res->status << endl;
-//         }
-//         else
-//         {
-//             auto err = res.error();
-//             cerr << "Request error:(PostCarData) " << httplib::to_string(err) << endl;
-//         }
-//     }
-// }
-
-// 
-
-
-
-
-//---WebSocket으로 대체
-// //future<void> futureGetData;
-// future<void> futurePostData;
-// //bool isGetDataRunning = false;
-// bool isPostDataRunning = false;
-// void asyncHTTP()
-// {
-//     // if (isGetDataRunning && futureGetData.valid() &&
-//     //     futureGetData.wait_for(chrono::seconds(0)) == future_status::ready)
-//     // {
-//     //     futureGetData.get(); // 비동기 작업의 결과 가져오기
-//     //     isGetDataRunning = false;
-//     // }
-
-//     // 이전 비동기 작업이 완료되었는지 확인 (POST)
-//     if (isPostDataRunning && futurePostData.valid() &&
-//         futurePostData.wait_for(chrono::seconds(0)) == future_status::ready)
-//     {
-//         futurePostData.get(); // 비동기 작업의 결과 가져오기
-//         isPostDataRunning = false;
-//     }
-
-//     // // 새로운 비동기 GET 작업 실행
-//     // if (!isGetDataRunning)
-//     // {
-//     //     futureGetData = async(std::launch::async, getUserData);
-//     //     isGetDataRunning = true;
-//     // }
-
-//     // 새로운 비동기 POST 작업 실행
-//     if (!isPostDataRunning)
-//     {
-//         futurePostData = async(std::launch::async, postCarData);
-//         isPostDataRunning = true;
-//     }
-// }
-// //---
 
 
 /*SSE로 대체함
