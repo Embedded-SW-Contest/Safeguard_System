@@ -13,7 +13,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 add_library(safeguard_lib STATIC lib/FileDescriptor.cxx
 			)
 
+# include 디렉터리 추가
 include_directories(${PROJECT_SOURCE_DIR}/safeguard_lib)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 link_directories(/usr/lib/aarch64-linux-gnu)
 
 set(EXTRA_LIBS ${EXTRA_LIBS} HD44780Lcd)

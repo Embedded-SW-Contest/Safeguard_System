@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/user/_safeguard/safeguard-system/safeguard_lib
+CXX_INCLUDES = -I/home/user/_safeguard/safeguard-system/safeguard_lib -I/home/user/_safeguard/safeguard-system/include
 
 CXX_FLAGS =  -Wall -std=c++14 -O3 -DNDEBUG
 
